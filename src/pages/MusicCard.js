@@ -1,5 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import { addSong, getFavoriteSongs } from '../services/favoriteSongsAPI';
 import Loading from './Loading';
 
 class MusicCard extends React.Component {
@@ -7,6 +8,7 @@ class MusicCard extends React.Component {
     super();
     this.state = {
       loading: false,
+      check: false,
     };
   }
 
@@ -14,11 +16,19 @@ class MusicCard extends React.Component {
     const { data } = this.props;
     this.setState({ loading: true });
     await addSong(data);
+    this.setState({ loading: false, check: true });
+    this.getSongsFavorite();
+  }
+
+  getSongsFavorite = async () => {
+    const { data } = this.props;
+    this.setState({ check: true });
+    await getFavoriteSongs(data);
   }
 
   render() {
-    const { loading } = this.state;
-    const { previewUrl, trackName } = this.props;
+    const { loading, check } = this.state;
+    const { trackId, previewUrl, trackName } = this.props;
     return (
       <div>
         { loading ? <Loading /> : (
@@ -37,6 +47,16 @@ class MusicCard extends React.Component {
               O seu navegador não suporta o elemento
               <code>audio</code>
             </audio>
+            <label htmlFor="Label Favorita">
+              <input
+                text="Favorita"
+                type="checkbox"
+                data-testid={ `checkbox-music-${trackId}` }
+                onChange={ this.saveMusicFavorite }
+                checked={ check }
+              />
+              Favorita
+            </label>
           </p>
         )}
 
